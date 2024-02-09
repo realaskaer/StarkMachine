@@ -84,28 +84,28 @@ def get_accounts_data():
                 private_key = row["Private Key"]
                 private_key_evm = row["Private Key EVM"] if GLOBAL_NETWORK == 9 else 0x123
                 proxy = row["Proxy"]
-                okx_address = row['OKX address']
+                cex_address = row['CEX address']
                 accounts_data[int(index) + 1] = {
                     "account_number": account_name,
                     "private_key_evm": private_key_evm,
                     "private_key": private_key,
                     "proxy": proxy,
-                    "okx_wallet": okx_address,
+                    "cex_wallet": cex_address,
                 }
 
-            acc_name, priv_key_evm, priv_key, proxy, okx_wallet = [], [], [], [], []
+            acc_name, priv_key_evm, priv_key, proxy, cex_wallet = [], [], [], [], []
             for k, v in accounts_data.items():
                 acc_name.append(v['account_number'] if isinstance(v['account_number'], (int, str)) else None)
                 priv_key_evm.append(v['private_key_evm'])
                 priv_key.append(v['private_key'])
                 proxy.append(v['proxy'] if isinstance(v['proxy'], str) else None)
-                okx_wallet.append(v['okx_wallet'] if isinstance(v['okx_wallet'], str) else None)
+                cex_wallet.append(v['cex_wallet'] if isinstance(v['cex_wallet'], str) else None)
 
             acc_name = [str(item) for item in acc_name if item is not None]
             proxy = [item for item in proxy if item is not None]
-            okx_wallet = [item for item in okx_wallet if item is not None]
+            cex_wallet = [item for item in cex_wallet if item is not None]
 
-            return acc_name, priv_key_evm, priv_key, proxy, okx_wallet
+            return acc_name, priv_key_evm, priv_key, proxy, cex_wallet
     except (DecryptionError, InvalidKeyError, DecryptionError, ValueError):
         sys.exit()
 
