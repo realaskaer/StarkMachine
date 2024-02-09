@@ -266,16 +266,31 @@ async def make_balance_to_average(account_name, private_key, network, proxy):
     return await worker.balance_average()
 
 
-async def okx_withdraw(account_name, private_key, network, proxy, *args, **kwargs):
-    worker = OKX(get_client(account_name, private_key, network, proxy))
-    return await worker.withdraw(*args, **kwargs)
+async def okx_withdraw(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_cex_withdraw(dapp_id=1)
 
 
-async def bingx_withdraw(account_name, private_key, network, proxy, **kwargs):
-    worker = BingX(get_client(account_name, private_key, network, proxy))
+async def bingx_withdraw(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_cex_withdraw(dapp_id=2)
+
+
+async def binance_withdraw(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_cex_withdraw(dapp_id=3)
+
+
+async def okx_withdraw_util(current_client, **kwargs):
+    worker = OKX(current_client)
     return await worker.withdraw(**kwargs)
 
 
-async def binance_withdraw(account_name, private_key, network, proxy, **kwargs):
-    worker = Binance(get_client(account_name, private_key, network, proxy))
+async def bingx_withdraw_util(current_client, **kwargs):
+    worker = BingX(current_client)
+    return await worker.withdraw(**kwargs)
+
+
+async def binance_withdraw_util(current_client, **kwargs):
+    worker = Binance(current_client)
     return await worker.withdraw(**kwargs)
