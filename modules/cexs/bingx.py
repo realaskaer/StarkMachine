@@ -110,7 +110,7 @@ class BingX(CEX, Logger):
 
                 parse_params = self.parse_params(params)
 
-                ccy = f"{ccy}.e" if network_id in [31, 32] else ccy
+                ccy = f"{ccy}.e" if network_id in [30, 31] else ccy
 
                 old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
                                                                           check_balance_on_dst=True)

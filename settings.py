@@ -2,15 +2,15 @@
 ----------------------------------------------------CEX CONTROL---------------------------------------------------------
     Выберите сети/суммы для вывода и ввода с CEX. Не забудьте вставить API ключи в general_settings.py.
 
-    1  - ETH-ERC20                10  - BNB-OPBNB           18 - MATIC-Polygon          27 - USDC-Optimism
-    2  - ETH-Arbitrum One         11 - CELO-CELO            19 - USDT-Arbitrum One      28 - USDC-Polygon
-    3  - ETH-Optimism             12 - GLMR-Moonbeam        20 - USDT-Avalanche         29 - USDC-Optimism (Bridged)
-    4  - ETH-Starknet             13 - MOVR-Moonriver       21 - USDT-Optimism          30 - USDC-Polygon (Bridged)
-    5  - ETH-zkSync Era           14 - METIS-Metis          22 - USDT-Polygon           31 - USDC-BSC
-    6  - ETH-Linea                15 - CORE-CORE            23 - USDT-BSC               32 - USDC-ERC20
-    7  - ETH-Base                 16 - CFX-CFX_EVM          24 - USDT-ERC20
-    8  - AVAX-Avalanche C-Chain   17 - KLAY-Klaytn          25 - USDC-Arbitrum One
-    9  - BNB-BSC                  18 - FTM-Fantom           26 - USDC-Avalanche C-Chain
+    1  - ETH-ERC20                10  - BNB-OPBNB           19 - MATIC-Polygon          28 - USDC-Optimism
+    2  - ETH-Arbitrum One         11 - CELO-CELO            20 - USDT-Arbitrum One      29 - USDC-Polygon
+    3  - ETH-Optimism             12 - GLMR-Moonbeam        21 - USDT-Avalanche         30 - USDC-Optimism (Bridged)
+    4  - ETH-Starknet             13 - MOVR-Moonriver       22 - USDT-Optimism          31 - USDC-Polygon (Bridged)
+    5  - ETH-zkSync Era           14 - METIS-Metis          23 - USDT-Polygon           32 - USDC-BSC
+    6  - ETH-Linea                15 - CORE-CORE            24 - USDT-BSC               33 - USDC-ERC20
+    7  - ETH-Base                 16 - CFX-CFX_EVM          25 - USDT-ERC20
+    8  - AVAX-Avalanche C-Chain   17 - KLAY-Klaytn          26 - USDC-Arbitrum One
+    9  - BNB-BSC                  18 - FTM-Fantom           27 - USDC-Avalanche C-Chain
 
     CEX_DEPOSIT_LIMITER | Настройка лимитного вывода на биржу. Указывать в $USD
                           1 значение - это минимальный баланс на аккаунте, чтобы софт начал процесс вывода
@@ -23,8 +23,8 @@
 '--------------------------------------------------------OKX-----------------------------------------------------------'
 
 OKX_WITHDRAW_DATA = [
-    [[17, (1, 1.1)], [18, (1, 1.1)]],  # Пример установки двух сетей
-    [3, (0.001, 0.002)],
+    #[[17, (1, 1.1)], [18, (1, 1.1)]],  # Пример установки двух сетей
+    [4, (0.001, 0.002)],
 ]
 
 OKX_DEPOSIT_DATA = [

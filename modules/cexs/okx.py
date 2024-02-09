@@ -90,7 +90,7 @@ class OKX(CEX, Logger):
 
                 headers = await self.get_headers(method="POST", request_path=url, body=str(body))
 
-                ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
+                ccy = f"{ccy}.e" if network_id in [30, 31] else ccy
 
                 old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
                                                                           check_balance_on_dst=True)
