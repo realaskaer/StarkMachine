@@ -90,12 +90,12 @@ class OKX(CEX, Logger):
 
                 headers = await self.get_headers(method="POST", request_path=url, body=str(body))
 
-                ccy = f"{ccy}.e" if network_id in [31, 32] else ccy
+                ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
 
                 old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
                                                                           check_balance_on_dst=True)
 
-                await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
+                #await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
 
                 self.logger_msg(*self.client.acc_info,
                                 msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')

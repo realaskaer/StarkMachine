@@ -282,6 +282,7 @@ class StarknetClient(Logger):
                 if chain_id != 9:
                     old_balance = await client.w3.eth.get_balance(self.address)
                 else:
+                    await client.initialize_account()
                     old_balance = await client.account.get_balance()
                 return old_balance
 
@@ -294,6 +295,7 @@ class StarknetClient(Logger):
                     if chain_id != 9:
                         old_balance = await client.w3.eth.get_balance(self.address)
                     else:
+                        await client.initialize_account()
                         old_balance = await client.account.get_balance()
                 except:
                     pass
