@@ -284,7 +284,7 @@ class BingX(CEX, Logger):
             } for item in withdraw_data
         }[network_name]
 
-        ccy = f"{ccy}.e" if deposit_network in [31, 32] else ccy
+        ccy = f"{ccy}.e" if deposit_network in [30, 31] else ccy
         amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
 
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
