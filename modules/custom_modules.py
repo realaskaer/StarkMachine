@@ -1,5 +1,6 @@
 import random
 
+from general_settings import GLOBAL_NETWORK
 from modules import Logger, RequestClient
 from modules.interfaces import SoftwareExceptionWithoutRetry
 from utils.tools import helper, gas_checker, sleep
@@ -22,6 +23,9 @@ class Custom(Logger, RequestClient):
         RequestClient.__init__(self, client)
 
     async def collect_eth_util(self):
+        if GLOBAL_NETWORK == 9:
+            await self.client.initialize_account()
+
         from functions import swap_avnu, swap_rango
 
         self.logger_msg(*self.client.acc_info, msg=f"Started collecting tokens in ETH")
@@ -83,6 +87,9 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def balance_average(self):
+        if GLOBAL_NETWORK == 9:
+            await self.client.initialize_account()
+
         from functions import okx_withdraw_util
 
         self.logger_msg(*self.client.acc_info, msg=f"Stark check all balance to make average")
@@ -141,6 +148,9 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def smart_cex_withdraw(self, dapp_id:int):
+        if GLOBAL_NETWORK == 9:
+            await self.client.initialize_account()
+
         from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util
 
         func, multi_withdraw_data = {
@@ -175,6 +185,9 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def smart_cex_withdraw(self, dapp_id: int):
+        if GLOBAL_NETWORK == 9:
+            await self.client.initialize_account()
+
         from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util
 
         func, multi_withdraw_data = {
@@ -210,6 +223,9 @@ class Custom(Logger, RequestClient):
     @helper
     @gas_checker
     async def smart_cex_deposit(self, dapp_id:int):
+        if GLOBAL_NETWORK == 9:
+            await self.client.initialize_account()
+
         client = None
         try:
             from functions import cex_deposit_util
@@ -274,6 +290,9 @@ class Custom(Logger, RequestClient):
     @helper
     @gas_checker
     async def smart_bridge(self, dapp_id:int = None, private_keys:dict=None):
+        if GLOBAL_NETWORK == 9:
+            await self.client.initialize_account()
+
         client = None
         try:
             from functions import bridge_utils
