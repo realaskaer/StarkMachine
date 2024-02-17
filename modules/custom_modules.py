@@ -12,7 +12,7 @@ from settings import (
     CEX_BALANCE_WANTED, OKX_WITHDRAW_DATA, BINANCE_DEPOSIT_DATA,
     BINGX_WITHDRAW_DATA, BINANCE_WITHDRAW_DATA,
     CEX_DEPOSIT_LIMITER, RHINO_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, ORBITER_CHAIN_ID_FROM, BRIDGE_AMOUNT_LIMITER,
-    ORBITER_TOKEN_NAME, LAYERSWAP_TOKEN_NAME, OKX_DEPOSIT_DATA, BINGX_DEPOSIT_DATA
+    ORBITER_TOKEN_NAME, LAYERSWAP_TOKEN_NAME, OKX_DEPOSIT_DATA, BINGX_DEPOSIT_DATA, CEX_VOLUME_MODE, BRIDGE_VOLUME_MODE
 )
 
 
@@ -189,10 +189,7 @@ class Custom(Logger, RequestClient):
 
     @helper
     @gas_checker
-    async def smart_cex_deposit(self, dapp_id:int):
-        if GLOBAL_NETWORK == 9:
-            await self.client.initialize_account()
-
+    async def smart_cex_deposit(self, dapp_id: int):
         client = None
         try:
             from functions import cex_deposit_util
@@ -203,7 +200,9 @@ class Custom(Logger, RequestClient):
                 3: (3, BINANCE_DEPOSIT_DATA, BINANCE_NETWORKS_NAME),
             }[dapp_id]
 
+            result_list = []
             for data in multi_deposit_data:
+
                 current_data = data
                 if isinstance(data[0], list):
                     current_data = random.choice(data)
@@ -212,11 +211,11 @@ class Custom(Logger, RequestClient):
 
                 networks, amount = current_data
                 if isinstance(networks, tuple):
-                    dapp_tokens = [f"{cex_config[network].split('-')[0]}{'.e' if network in [30, 31] else ''}"
+                    dapp_tokens = [f"{cex_config[network].split('-')[0]}{'.e' if network in [29, 30] else ''}"
                                    for network in networks]
                     dapp_chains = [CEX_WRAPPED_ID[chain] for chain in networks]
                 else:
-                    dapp_tokens = [cex_config[networks].split('-')[0]]
+                    dapp_tokens = [f"{cex_config[networks].split('-')[0]}{'.e' if networks in [29, 30] else ''}"]
                     dapp_chains = [CEX_WRAPPED_ID[networks]]
 
                 client, chain_index, balance, balance_data = await self.balance_searcher(
@@ -229,28 +228,41 @@ class Custom(Logger, RequestClient):
                 limit_amount, wanted_to_hold_amount = CEX_DEPOSIT_LIMITER
                 min_wanted_amount, max_wanted_amount = min(wanted_to_hold_amount), max(wanted_to_hold_amount)
 
-                if balance_in_usd > limit_amount:
+                if balance_in_usd >= limit_amount:
 
-                    dep_amount = await client.get_smart_amount(amount)
+                    if CEX_VOLUME_MODE:
+                        dep_amount = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                    else:
+                        dep_amount = await client.get_smart_amount(amount, token_name=dep_token)
                     dep_amount_in_usd = dep_amount * token_price
 
-                    if balance_in_usd > dep_amount_in_usd:
+                    if balance_in_usd >= dep_amount_in_usd:
 
-                        if min_wanted_amount <= (balance_in_usd - dep_amount_in_usd) <= max_wanted_amount:
+                        if (min_wanted_amount <= (balance_in_usd - dep_amount_in_usd) <= max_wanted_amount
+                                or CEX_VOLUME_MODE):
 
                             deposit_data = dep_network, (dep_amount, dep_amount)
 
-                            return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
+                            if len(multi_deposit_data) == 1:
+                                return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
+                            else:
+                                result_list.append(
+                                    await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
+                                )
+                                await client.session.close()
+                                continue
 
                         hold_amount_in_usd = balance_in_usd - dep_amount_in_usd
                         info = f"{min_wanted_amount:.2f}$ <= {hold_amount_in_usd:.2f}$ <= {max_wanted_amount:.2f}$"
-                        raise SoftwareExceptionWithoutRetry(f'Account balance will be not in wanted hold amount: {info}')
+                        raise SoftwareExceptionWithoutRetry(
+                            f'Account balance will be not in wanted hold amount: {info}')
 
                     info = f"{balance_in_usd:.2f}$ < {dep_amount_in_usd:.2f}$"
                     raise SoftwareExceptionWithoutRetry(f'Account {dep_token} balance < wanted deposit amount: {info}')
 
                 info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
                 raise SoftwareExceptionWithoutRetry(f'Account {dep_token} balance < wanted limit amount: {info}')
+            return all(result_list)
         finally:
             await client.session.close()
 
@@ -298,16 +310,20 @@ class Custom(Logger, RequestClient):
             bridge_data = (source_chain_name, destination_chain, amount,
                            dst_chain_id, token_name, from_token_addr, to_token_addr)
 
-            if balance_in_usd > limit_amount:
+            if balance_in_usd >= limit_amount:
 
-                bridge_amount = await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data, private_keys=private_keys, need_fee=True)
+                if BRIDGE_VOLUME_MODE:
+                    bridge_amount = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                else:
+                    bridge_amount = await bridge_utils(
+                        client, bridge_app_id, chain_from_id, bridge_data, private_keys, need_fee=True)
                 bridge_amount_in_usd = bridge_amount * token_price
 
-                if balance_in_usd > bridge_amount_in_usd:
+                if balance_in_usd >= bridge_amount_in_usd:
 
-                    if min_wanted_amount <= (balance_in_usd - bridge_amount_in_usd) <= max_wanted_amount:
-
-                        return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data, private_keys=private_keys)
+                    if (min_wanted_amount <= (balance_in_usd - bridge_amount_in_usd) <= max_wanted_amount
+                            or BRIDGE_VOLUME_MODE):
+                        return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data, private_keys)
 
                     hold_amount_in_usd = balance_in_usd - bridge_amount_in_usd
                     info = f"{min_wanted_amount:.2f}$ <= {hold_amount_in_usd:.2f}$ <= {max_wanted_amount:.2f}$"
