@@ -190,6 +190,8 @@ class Custom(Logger, RequestClient):
     @helper
     @gas_checker
     async def smart_cex_deposit(self, dapp_id: int):
+        if GLOBAL_NETWORK == 9:
+            await self.client.initialize_account()
         client = None
         try:
             from functions import cex_deposit_util
