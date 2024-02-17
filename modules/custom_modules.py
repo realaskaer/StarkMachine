@@ -26,12 +26,12 @@ class Custom(Logger, RequestClient):
         if GLOBAL_NETWORK == 9:
             await self.client.initialize_account()
 
-        from functions import swap_avnu, swap_rango
+        from functions import swap_avnu
 
         self.logger_msg(*self.client.acc_info, msg=f"Started collecting tokens in ETH")
 
         func = {
-            'Starknet': [swap_rango, swap_avnu]
+            'Starknet': [swap_avnu]
         }[self.client.network.name]
 
         wallet_balance = {k: await self.client.get_token_balance(k, False)
@@ -122,7 +122,11 @@ class Custom(Logger, RequestClient):
         clients = [await self.client.new_client(chain)
                    for chain in chains]
 
-        balances = [await client.get_token_balance(token_name=token, bridge_check=bridge_check)
+        if GLOBAL_NETWORK == 9:
+            for client in clients:
+                await client.initialize_account()
+
+        balances = [await client.get_token_balance(token_name=token)
                     for client, token in zip(clients, tokens)]
 
         balances_in_usd = []
@@ -145,43 +149,6 @@ class Custom(Logger, RequestClient):
             type_msg='success')
 
         return clients[index], index, balances[index][1], balances_in_usd[index]
-
-    @helper
-    async def smart_cex_withdraw(self, dapp_id:int):
-        if GLOBAL_NETWORK == 9:
-            await self.client.initialize_account()
-
-        from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util
-
-        func, multi_withdraw_data = {
-            1: (okx_withdraw_util, OKX_WITHDRAW_DATA),
-            2: (bingx_withdraw_util, BINGX_WITHDRAW_DATA),
-            3: (binance_withdraw_util, BINANCE_WITHDRAW_DATA)
-        }[dapp_id]
-
-        random.shuffle(multi_withdraw_data)
-
-        for data in multi_withdraw_data:
-            current_data = data
-            if isinstance(data[0], list):
-                current_data = random.choice(data)
-                if not current_data:
-                    continue
-
-            network, amount = current_data
-            if isinstance(amount[0], str):
-                raise SoftwareExceptionWithoutRetry('CEX withdrawal does not support % of the amount')
-
-            try:
-                await func(self.client, withdraw_data=(network, amount))
-
-            except Exception as error:
-                self.logger_msg(
-                    *self.client.acc_info, msg=f"Withdraw from CEX failed. Error: {error}", type_msg='error')
-
-            await sleep(self)
-
-        return True
 
     @helper
     async def smart_cex_withdraw(self, dapp_id: int):

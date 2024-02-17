@@ -1,6 +1,7 @@
 import hmac
 import base64
 import asyncio
+import random
 
 from hashlib import sha256
 from modules import CEX, Logger
@@ -74,7 +75,7 @@ class OKX(CEX, Logger):
             *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name}")
 
         if network_data['can_withdraw']:
-            address = f"0x{hex(self.client.address)[2:]:0>64}" if network_id == 4 else self.client.address
+            address = f"0x{hex(self.client.address)}"
             min_wd, max_wd = float(network_data['min_wd']), float(network_data['max_wd'])
 
             if min_wd <= amount <= max_wd:

@@ -1,4 +1,5 @@
 from config import AVNU_CONTRACT, TOKENS_PER_CHAIN, HELP_SOFTWARE
+from modules.interfaces import SoftwareException
 from utils.tools import helper, gas_checker
 from general_settings import SLIPPAGE
 from modules import RequestClient, Logger
@@ -11,18 +12,27 @@ class AVNU(RequestClient, Logger):
         RequestClient.__init__(self, client)
 
     async def get_quotes(self, from_token_address: int, to_token_address: int, amount_in_wei: int):
-        url = "https://starknet.api.avnu.fi/swap/v1/quotes"
+        count = 0
+        while True:
+            try:
+                url = "https://starknet.api.avnu.fi/swap/v1/quotes"
 
-        params = {
-            "sellTokenAddress": hex(from_token_address),
-            "buyTokenAddress": hex(to_token_address),
-            "sellAmount": hex(amount_in_wei),
-        } | ({
-                "integratorFees": hex(100),
-                "integratorFeeRecipient": hex(0x04FaFe3DC5005a717bB905c10108afD23691a70b53772525503f4b0979712816)
-        } if HELP_SOFTWARE else {})
+                params = {
+                    "sellTokenAddress": hex(from_token_address),
+                    "buyTokenAddress": hex(to_token_address),
+                    "sellAmount": hex(amount_in_wei),
+                } | ({
+                        "integratorFees": hex(100),
+                        "integratorFeeRecipient": hex(0x04FaFe3DC5005a717bB905c10108afD23691a70b53772525503f4b0979712816)
+                } if HELP_SOFTWARE else {})
 
-        return (await self.make_request(method='GET', url=url, params=params))[0]["quoteId"]
+                data = await self.make_request(method='GET', url=url, params=params)
+
+                return data[0]["quoteId"]
+            except:
+                if count == 3:
+                    raise SoftwareException('AVNU API can`t return data')
+                count += 1
 
     async def build_transaction(self, quote_id: str):
         url = "https://starknet.api.avnu.fi/swap/v1/build"
