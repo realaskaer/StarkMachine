@@ -233,10 +233,11 @@ class Custom(Logger, RequestClient):
                 if balance_in_usd >= limit_amount:
 
                     if CEX_VOLUME_MODE:
-                        dep_amount = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                        dep_amount_in_usd = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                        dep_amount = dep_amount_in_usd / token_price
                     else:
                         dep_amount = await client.get_smart_amount(amount, token_name=dep_token)
-                    dep_amount_in_usd = dep_amount * token_price
+                        dep_amount_in_usd = dep_amount * token_price
 
                     if balance_in_usd >= dep_amount_in_usd:
 
@@ -315,11 +316,11 @@ class Custom(Logger, RequestClient):
             if balance_in_usd >= limit_amount:
 
                 if BRIDGE_VOLUME_MODE:
-                    bridge_amount = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                    bridge_amount_in_usd = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
                 else:
                     bridge_amount = await bridge_utils(
                         client, bridge_app_id, chain_from_id, bridge_data, private_keys, need_fee=True)
-                bridge_amount_in_usd = bridge_amount * token_price
+                    bridge_amount_in_usd = bridge_amount * token_price
 
                 if balance_in_usd >= bridge_amount_in_usd:
 
