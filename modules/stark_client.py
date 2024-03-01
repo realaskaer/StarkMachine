@@ -489,7 +489,7 @@ class StarknetClient(Logger):
 
         data = (await self.make_request(url=url, headers=headers, module_name='Gas Price'))['strk_l1_gas_price']
 
-        return int(data, 16) / 10 ** 7
+        return int(data, 16) / 10 ** 12
 
     async def get_token_price(self, token_name: str, vs_currency: str = 'usd') -> float:
         await asyncio.sleep(10)
