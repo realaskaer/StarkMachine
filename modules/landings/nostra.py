@@ -23,7 +23,7 @@ class Nostra(Landing, Logger):
 
         nostra_token_contract = await self.client.get_contract(contract_address=nostra_contract_address)
 
-        deposit_call = nostra_token_contract.functions["mint"].prepare(
+        deposit_call = nostra_token_contract.functions["mint"].prepare_call(
             self.client.address,
             amount_in_wei
         )
@@ -43,7 +43,7 @@ class Nostra(Landing, Logger):
 
         nostra_contract = await self.client.get_contract(NOSTRA_CONTRACTS[token_name])
 
-        withdraw_call = nostra_contract.functions["burn"].prepare(
+        withdraw_call = nostra_contract.functions["burn"].prepare_call(
             self.client.address,
             self.client.address,
             landing_balance

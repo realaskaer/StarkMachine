@@ -13,7 +13,7 @@ class TenkSwap(DEX, Logger):
 
     @staticmethod
     async def get_min_amount_out(contract, amount_in_wei: int, path: tuple):
-        min_amount_out = (await contract.functions["getAmountsOut"].prepare(
+        min_amount_out = (await contract.functions["getAmountsOut"].prepare_call(
             amount_in_wei,
             path
         ).call()).amounts[1]
@@ -43,7 +43,7 @@ class TenkSwap(DEX, Logger):
 
         approve_call = self.client.get_approve_call(from_token_address, TENKSWAP_CONTRACT['router'], amount_in_wei)
 
-        swap_call = router_contract.functions["swapExactTokensForTokens"].prepare(
+        swap_call = router_contract.functions["swapExactTokensForTokens"].prepare_call(
             amount_in_wei,
             min_amount_out,
             path,

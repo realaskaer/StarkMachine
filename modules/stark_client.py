@@ -68,7 +68,7 @@ class StarknetClient(Logger):
         self.private_key = private_key
         self.min_amount_eth_on_balance = MIN_BALANCE
         self.acc_info = None
-        self.account = None
+        self.account: Account | None = None
         self.address = None
         self.WALLET_TYPE = None
 
@@ -267,12 +267,14 @@ class StarknetClient(Logger):
         from functions import get_network_by_chain_id
         from modules import Client
         if chain_id != 9:
-            client = Client
+            client = Client(
+                self.account_name, self.private_key, get_network_by_chain_id(chain_id), self.proxy_init
+            )
         else:
-            client = StarknetClient
-        new_client = client(self.account_name, self.private_key,
-                            get_network_by_chain_id(chain_id), self.proxy_init)
-        return new_client
+            client = StarknetClient(
+                self.account_name, self.private_key, get_network_by_chain_id(chain_id), self.proxy_init
+            )
+        return client
 
     async def wait_for_receiving(self, chain_id:int, old_balance:int = 0, token_name:str = 'ETH', sleep_time:int = 30,
                                  timeout: int = 1200, check_balance_on_dst:bool = False):
@@ -415,7 +417,7 @@ class StarknetClient(Logger):
         else:
             raise SoftwareException('Insufficient balance on account!')
 
-    async def get_contract(self, contract_address: int, proxy_config: bool = False):
+    async def get_contract(self, contract_address: int, proxy_config: bool = False) -> Contract:
         return await Contract.from_address(address=contract_address, provider=self.account, proxy_config=proxy_config)
 
     @staticmethod
@@ -450,11 +452,11 @@ class StarknetClient(Logger):
             2 ** 128 - 1 if unlim_approve else 0
         ])
 
-    async def send_transaction(self, *calls:list, check_hash:bool = False, hash_for_check:int = None):
+    async def send_transaction(self, *calls, check_hash:bool = False, hash_for_check:int = None):
         try:
             tx_hash = hash_for_check
             if not check_hash:
-                tx_hash = (await self.account.execute(
+                tx_hash = (await self.account.execute_v1(
                     calls=calls,
                     auto_estimate=True
                 )).transaction_hash
@@ -468,8 +470,10 @@ class StarknetClient(Logger):
         except Exception as error:
             raise SoftwareException(f'Send transaction | {self.get_normalize_error(error)}')
 
-    async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
-                           data:str = None, json:dict = None, module_name:str = None):
+    async def make_request(
+            self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None, data:str = None,
+            json:dict = None, module_name:str = None
+    ):
 
         headers = (headers or {}) | {'User-Agent': get_user_agent()}
         async with self.session.request(method=method, url=url, headers=headers, data=data,

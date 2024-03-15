@@ -1,12 +1,12 @@
 import random
 
-from modules import Landing, Logger
+from modules import Landing, Logger, StarknetClient
 from utils.tools import gas_checker, helper
 from config import ZKLEND_CONTRACTS, TOKENS_PER_CHAIN
 
 
 class ZkLend(Landing, Logger):
-    def __init__(self, client):
+    def __init__(self, client: StarknetClient):
         self.client = client
         Logger.__init__(self)
 
@@ -24,9 +24,11 @@ class ZkLend(Landing, Logger):
         approve_call = self.client.get_approve_call(token_address, ZKLEND_CONTRACTS['landing'],
                                                     amount_in_wei)
 
-        deposit_call = landing_contract.functions["deposit"].prepare(
-            token_address,
-            amount_in_wei
+        deposit_call = landing_contract.functions["deposit"].prepare_call(
+            [
+                token_address,
+                amount_in_wei
+            ]
         )
 
         return await self.client.send_transaction(approve_call, deposit_call)
@@ -38,16 +40,30 @@ class ZkLend(Landing, Logger):
 
         token_name, token_contract = await self.client.get_landing_data(class_name='zkLend')
 
-        self.logger_msg(*self.client.acc_info, msg=f'Withdraw {token_name} from zkLend')
+        landing_balance = (await self.client.account.client.call_contract(self.client.prepare_call(
+            contract_address=ZKLEND_CONTRACTS[token_name],
+            selector_name='balanceOf',
+            calldata=[self.client.address]
+        )))[0]
+
+        decimals = (await self.client.account.client.call_contract(self.client.prepare_call(
+            contract_address=ZKLEND_CONTRACTS[token_name],
+            selector_name='decimals',
+            calldata=[]
+        )))[0]
+
+        self.logger_msg(
+            *self.client.acc_info, msg=f'Withdraw {landing_balance / 10 ** decimals:.5f} {token_name} from zkLend'
+        )
 
         landing_contract = await self.client.get_contract(ZKLEND_CONTRACTS['landing'])
 
-        withdraw_call = landing_contract.functions["withdraw_all"].prepare(
-            token_contract
+        withdraw_call = landing_contract.functions["withdraw"].prepare_call(
+            token_contract,
+            landing_balance
         )
 
         return await self.client.send_transaction(withdraw_call)
-
 
     @helper
     @gas_checker
@@ -60,8 +76,10 @@ class ZkLend(Landing, Logger):
 
         landing_contract = await self.client.get_contract(ZKLEND_CONTRACTS['landing'])
 
-        enable_collateral_call = landing_contract.functions["enable_collateral"].prepare(
-            token_address
+        enable_collateral_call = landing_contract.functions["enable_collateral"].prepare_call(
+            [
+                token_address
+            ]
         )
 
         return await self.client.send_transaction(enable_collateral_call)
@@ -77,8 +95,10 @@ class ZkLend(Landing, Logger):
 
         landing_contract = await self.client.get_contract(ZKLEND_CONTRACTS['landing'])
 
-        disable_collateral_call = landing_contract.functions["disable_collateral"].prepare(
-            token_address
+        disable_collateral_call = landing_contract.functions["disable_collateral"].prepare_call(
+            [
+                token_address
+            ]
         )
 
         return await self.client.send_transaction(disable_collateral_call)

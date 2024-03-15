@@ -13,7 +13,7 @@ class SithSwap(DEX, Logger):
 
     @staticmethod
     async def get_min_amount_out(contract, amount_in_wei: int, from_token_address: str, to_token_address: str):
-        min_amount_out, stable_type = await contract.functions["getAmountOut"].prepare(
+        min_amount_out, stable_type = await contract.functions["getAmountOut"].prepare_call(
             amount_in_wei,
             from_token_address,
             to_token_address
@@ -51,7 +51,7 @@ class SithSwap(DEX, Logger):
 
         approve_call = self.client.get_approve_call(from_token_address, SITHSWAP_CONTRACT['router'], amount_in_wei)
 
-        swap_call = router_contract.functions["swapExactTokensForTokens"].prepare(
+        swap_call = router_contract.functions["swapExactTokensForTokens"].prepare_call(
             amount_in_wei,
             min_amount_out,
             route,

@@ -249,7 +249,7 @@ class Rhino(Bridge, Logger):
                                                             amount_in_wei)
 
                 rhino_contract = await self.client.get_contract(int(source_chain_info['contractAddress'], 16))
-                deposit_call = rhino_contract.functions['deposit'].prepare(
+                deposit_call = rhino_contract.functions['deposit'].prepare_call(
                     TOKENS_PER_CHAIN['Starknet']['ETH'],
                     amount_in_wei,
                     int(await self.get_address_for_bridge(private_keys['evm_key'], stark_key_type=False), 16)

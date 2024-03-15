@@ -33,6 +33,6 @@ class StarkStars(Minter, Logger):
 
         approve_call = self.client.get_approve_call(eth_contract, nft_contract.address, mint_price)
 
-        mint_call = nft_contract.functions["mint"].prepare()
+        mint_call = nft_contract.functions["mint"].prepare_call()
 
         return await self.client.send_transaction(approve_call, mint_call)

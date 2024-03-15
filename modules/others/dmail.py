@@ -42,7 +42,8 @@ class Dmail(Messenger, Logger):
 
         stark_order = 3618502788666131213697322783095070105623107215331596699973092056135872020481
         to_address = int(to_address, 16) % (stark_order + 1)
-        transaction = dmail_contract.functions["transaction"].prepare(to_address,
-                                                                      to_address)
+        transaction = dmail_contract.functions["transaction"].prepare_call(
+            to_address, to_address
+        )
 
         return await self.client.send_transaction(transaction)

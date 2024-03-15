@@ -84,7 +84,7 @@ class Orbiter(Bridge, Logger):
             approve_call = self.client.get_approve_call(eth_address, ORBITER_CONTRACTS['stark_contract'],
                                                         unlim_approve=True)
 
-            bridge_call = contract.functions["transferERC20"].prepare(
+            bridge_call = contract.functions["transferERC20"].prepare_call(
                 eth_address,
                 int(bridge_data['maker'], 16),
                 full_amount,

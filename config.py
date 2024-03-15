@@ -94,6 +94,7 @@ TOKENS_PER_CHAIN = {
         "USDC"              : 0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8,
         "USDT"              : 0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8,
         "DAI"               : 0x00da114221cb83fa859dbdb4c44beeaa0bb37c7537ad5ae66fe5e0efd20e6eb3,
+        "STRK"              : 0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d,
     },
     "Base":{
         "ETH"               : "0x4200000000000000000000000000000000000006",
@@ -176,7 +177,8 @@ ZKLEND_CONTRACTS = {
     "ETH"                   : 0x01b5bd713e72fdc5d63ffd83762f81297f6175a5e0a4771cdadbc1dd5fe72cb1,
     "USDC"                  : 0x047ad51726d891f972e74e4ad858a261b43869f7126ce7436ee0b2529a98f486,
     "USDT"                  : 0x00811d8da5dc8a2206ea7fd0b28627c2d77280a515126e62baa4d78e22714c4a,
-    "DAI"                   : 0x062fa7afe1ca2992f8d8015385a279f49fad36299754fb1e9866f4f052289376
+    "DAI"                   : 0x062fa7afe1ca2992f8d8015385a279f49fad36299754fb1e9866f4f052289376,
+    "STRK"                  : 0x06d8fa671ef84f791b7f601fa79fea8f6ceb70b5fa84189e3159d532162efc21
 }
 
 NOSTRA_CONTRACTS = {

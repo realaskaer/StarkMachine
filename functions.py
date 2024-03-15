@@ -1,9 +1,6 @@
-import random
-
 from modules import *
 from utils.networks import *
 from general_settings import GLOBAL_NETWORK
-from settings import (ORBITER_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM)
 
 
 def get_client(account_name, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:
